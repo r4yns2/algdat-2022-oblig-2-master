@@ -4,8 +4,11 @@ package no.oslomet.cs.algdat.Oblig2;
 ////////////////// class DobbeltLenketListe //////////////////////////////
 
 
+import org.w3c.dom.Node;
+
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Objects;
 
 
 public class DobbeltLenketListe<T> implements Liste<T> {
@@ -41,7 +44,26 @@ public class DobbeltLenketListe<T> implements Liste<T> {
     }
 
     public DobbeltLenketListe(T[] a) {
-        throw new UnsupportedOperationException();
+        Node newNode =  new Node(a);
+        try {
+            hode = null;
+            hode.neste = hale;
+            if (a.length != 0) {
+                for (int i = 0; i < a.length; i++) {
+                    if (a[i] != null) {
+                        Objects.requireNonNull(hale).neste = newNode;
+                        antall++;
+                        endringer++;
+                        newNode.forrige = hale;
+                        hale = newNode;
+                        hale.neste = null;
+                    }
+                }
+            }
+
+        }catch (NullPointerException e){
+            System.out.print("Tabellen a er null!");
+        }
     }
 
     public Liste<T> subliste(int fra, int til) {
@@ -50,17 +72,40 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
     @Override
     public int antall() {
-        throw new UnsupportedOperationException();
+        Node<T> tmp;
+        tmp = this.hode;
+        int i = 0;
+        while(tmp != null) {
+            i++;
+            tmp = tmp.neste;
+        }
+        return i;
     }
 
     @Override
     public boolean tom() {
-        throw new UnsupportedOperationException();
+        return hode.neste == hale;
     }
 
     @Override
     public boolean leggInn(T verdi) {
-        throw new UnsupportedOperationException();
+        Objects.requireNonNull(verdi, "Verdi er null");
+        Node<T> newNode = new Node<>(verdi);
+        if (tom()){
+            hode = hale = newNode;
+            antall++;
+            endringer++;
+            hode.forrige=null;
+            hale.neste=null;
+        }else{
+            hale.neste = newNode;
+            antall++;
+            endringer++;
+            newNode.forrige = hale;
+            hale = newNode;
+            hale.neste = null;
+        }
+        return true;
     }
 
     @Override
@@ -71,6 +116,25 @@ public class DobbeltLenketListe<T> implements Liste<T> {
     @Override
     public boolean inneholder(T verdi) {
         throw new UnsupportedOperationException();
+    }
+
+    private Node<T> finnNode(int indeks){ // Oppgave 3. Finner ingen finnNode metode. Laget derfor en selv.
+        if (indeks < antall()/2){
+            int i = 1;
+            boolean sjekk = false;
+            Node<T> current = hode;
+            if (hode == null){
+                throw new NullPointerException("Tabellen er tom");
+            }
+            while(current != null){
+                if (indeks = current.verdi){
+                    sjekk = true;
+                    break;
+                }
+                current = current.neste;
+                i++;
+            }
+        }
     }
 
     @Override
@@ -105,11 +169,35 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
     @Override
     public String toString() {
-        throw new UnsupportedOperationException();
+        StringBuilder Lister = new StringBuilder();
+        String ut1 = "[";
+        String ut2 = "]";
+        if (hode == null){
+            return ut1 + Lister + ut2;
+        }else {
+            Node<T> current = hode;
+            while(current != hale) {
+                Lister.append(current).append(", ");
+                current = current.neste;
+            }
+            return ut1 + Lister + ut2;
+        }
     }
 
     public String omvendtString() {
-        throw new UnsupportedOperationException();
+        StringBuilder Lister = new StringBuilder();
+        String ut1 = "[";
+        String ut2 = "]";
+        if (hode == null){
+            return ut1 + Lister + ut2;
+        }else {
+            Node<T> current = hale;
+            while(current != hode) {
+                Lister.append(current).append(", ");
+                current = current.forrige;
+            }
+            return ut1 + Lister + ut2;
+        }
     }
 
     @Override
