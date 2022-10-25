@@ -6,10 +6,7 @@ package no.oslomet.cs.algdat.Oblig2;
 
 import org.w3c.dom.Node;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 public class DobbeltLenketListe<T> implements Liste<T> {
@@ -123,18 +120,18 @@ public class DobbeltLenketListe<T> implements Liste<T> {
        Objects.requireNonNull(verdi, "Null verdier er ulovelig!");
         indeksKontroll(indeks,true);
         if (indeks == 0) {
-            hode = new Node<>(verdi,hode,null);
-            if (antall == 0){
+            hode = new Node<>(verdi,null,hode);
+            if (antall == 0) {
                 hale = hode;
             }
         }else if (indeks == antall){
-            hale = hale.neste = new Node<>(verdi,hale,null);
+            hale = hale.neste = new Node<>(verdi,null, null);
         }else{
             Node<T> current = hode;
             for (int i = 1; i < indeks; i++){
                 current = current.neste;
             }
-            current.neste = new Node<>(verdi,current.neste,null);
+            current.neste = new Node<>(verdi,null, current.neste);
         }
         antall++;
     }
@@ -198,12 +195,60 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
     @Override
     public boolean fjern(T verdi) {
-        throw new UnsupportedOperationException();
+        if (verdi == null){
+            return false;
+        }
+        Node<T> current = hode, peker = null;
+
+        while (current != null) {
+            if (current.verdi.equals(verdi)){
+                break;
+            }
+            peker = current; current = current.neste;
+        }
+
+        if (current == null){
+            return false;
+        }else if (current == hode){
+            hode = hode.neste;
+        }else{
+            peker.neste = current.neste;
+        }
+
+        if (current == hale){
+            hale = peker;
+        }
+
+        current.verdi = null;
+        current.neste = null;
+
+        antall--;
+
+        return true;
     }
 
     @Override
     public T fjern(int indeks) {
-        throw new UnsupportedOperationException();
+        indeksKontroll(indeks, false);
+        T temp;
+        if (indeks == 0) {
+            temp = hode.verdi;
+            hode = hode.neste;
+            if (antall == 1){
+                hale = null;
+            }
+        }else {
+            Node<T> current1 = finnNode(indeks - 1);
+            Node<T> current2 = current1.neste;
+            temp = current2.verdi;
+
+            if (current2 == hale){
+                hale = current1;
+            }
+            current1.neste = current2.neste;
+        }
+        antall--;
+        return temp;
     }
 
     @Override
@@ -252,15 +297,17 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
     @Override
     public Iterator<T> iterator() {
-        throw new UnsupportedOperationException();
+        return new DobbeltLenketListeIterator();
     }
 
     public Iterator<T> iterator(int indeks) {
-        throw new UnsupportedOperationException();
+        indeksKontroll(indeks, false);
+        DobbeltLenketListeIterator Iterator = new DobbeltLenketListeIterator();
+        
     }
 
     private class DobbeltLenketListeIterator implements Iterator<T> {
-        private Node<T> denne;
+        private DobbeltLenketListe.Node<T> denne;
         private boolean fjernOK;
         private int iteratorendringer;
 
@@ -271,7 +318,7 @@ public class DobbeltLenketListe<T> implements Liste<T> {
         }
 
         private DobbeltLenketListeIterator(int indeks) {
-            throw new UnsupportedOperationException();
+            this.denne = finnNode(indeks);
         }
 
         @Override
@@ -281,7 +328,16 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
         @Override
         public T next() {
-            throw new UnsupportedOperationException();
+            if (!hasNext()){
+                throw new NoSuchElementException("Ingen verdier!");
+            }
+
+            fjernOK = true;
+            DobbeltLenketListe.Node<T> current = hode;
+            T denneVerdi = current.verdi;
+            current = current.neste;
+
+            return denneVerdi;
         }
 
         @Override
