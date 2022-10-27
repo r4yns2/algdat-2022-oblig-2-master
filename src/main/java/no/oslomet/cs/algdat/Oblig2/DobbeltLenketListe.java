@@ -297,13 +297,20 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
     @Override
     public Iterator<T> iterator() {
+        /*
         return new DobbeltLenketListeIterator();
+
+         */
+        throw new UnsupportedOperationException();
     }
 
     public Iterator<T> iterator(int indeks) {
+        /*
         indeksKontroll(indeks, false);
         DobbeltLenketListeIterator Iterator = new DobbeltLenketListeIterator();
-        
+
+         */
+        throw new UnsupportedOperationException();
     }
 
     private class DobbeltLenketListeIterator implements Iterator<T> {
